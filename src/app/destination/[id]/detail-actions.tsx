@@ -1,32 +1,20 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+    EditDestination,
+} from "@/app/components/destination/EditDestination";
+import DeleteDestination from "@/app/components/DeleteDestination";
+import IDestination from "@/lib/destination";
 
-import { Button } from "@/components/ui/button";
-
-export function DetailActions() {
-    const router = useRouter();
+export function DetailActions({
+    destination,
+}: { destination: IDestination}) {
 
     return (
         <div className="flex items-center gap-2">
-            <Button
-                variant="outline"
-                className="border-border bg-background"
-                onClick={() => router.push("/add-destination")}
-            >
-                <Pencil data-icon="inline-start" />
-                Edit
-            </Button>
-            <Button
-                variant="outline"
-                className="border-destructive/40 bg-background text-destructive hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => router.push("/destination")}
-            >
-                <Trash2 data-icon="inline-start" />
-                Cancel
-            </Button>
+            <EditDestination destination={destination} />
+            
+            <DeleteDestination destination={destination} />
         </div>
     );
 }

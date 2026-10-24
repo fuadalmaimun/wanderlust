@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function CtaBanner() {
   return (
@@ -29,10 +30,12 @@ export default function CtaBanner() {
         </p>
 
         {/* CTA Button */}
-        <button className="bg-white hover:bg-slate-100 active:scale-95 text-slate-900 font-semibold text-xs sm:text-sm tracking-wider uppercase px-8 py-4 rounded-sm transition-all duration-200 flex items-center gap-3 shadow-2xl cursor-pointer">
+        <Link
+        href="/add-destination"
+        className="bg-white hover:bg-slate-100 active:scale-95 text-slate-900 font-semibold text-xs sm:text-sm tracking-wider uppercase px-8 py-4 rounded-sm transition-all duration-200 flex items-center gap-3 shadow-2xl cursor-pointer">
           <span>BOOK YOUR TRIP TODAY</span>
           <ArrowRight className="w-4 h-4 text-slate-900 stroke-[2.5]" />
-        </button>
+        </Link>
       </div>
     </section>
   );

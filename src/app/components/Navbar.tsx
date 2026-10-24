@@ -2,22 +2,33 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { User, Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [activeTab, setActiveTab] = useState("Home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Home page: float the white bar over the hero banner.
+  // Other pages: normal sticky bar in the document flow.
+  const isHome = pathname === "/";
 
   const leftNavs = [
     { name: "Home", href: "/" },
     { name: "Destinations", href: "/destination" },
     { name: "Add Destination", href: "/add-destination" },
     { name: "My Bookings", href: "/my-bookings" },
-
   ];
 
   return (
-    <header className="sticky top-0 z-20 w-full bg-white text-slate-800 shadow-md">
+    <header
+      className={`w-full bg-white text-slate-800 shadow-md ${
+        isHome
+          ? "fixed top-2 left-0 right-0 z-50 max-w-[95%] mx-auto px-4 sm:px-6 lg:px-8 rounded-md"
+          : "sticky top-0 z-20"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
@@ -83,7 +94,11 @@ export default function Navbar() {
             className="text-slate-700 p-2 focus:outline-none"
             aria-label="Toggle Navigation Menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
