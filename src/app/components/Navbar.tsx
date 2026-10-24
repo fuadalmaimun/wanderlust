@@ -10,13 +10,14 @@ export default function Navbar() {
 
   const leftNavs = [
     { name: "Home", href: "/" },
-    { name: "Destinations", href: "/destinations" },
+    { name: "Destinations", href: "/destination" },
+    { name: "Add Destination", href: "/add-destination" },
     { name: "My Bookings", href: "/my-bookings" },
-    { name: "Admin", href: "/admin" },
+
   ];
 
   return (
-    <header className="relative z-20 w-full bg-white text-slate-800 shadow-md">
+    <header className="sticky top-0 z-20 w-full bg-white text-slate-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
