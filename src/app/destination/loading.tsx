@@ -1,7 +1,7 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const DestinationListLoading = () => {
+ const   DestinationListLoading = () => {
     return (
         <div className="flex-1 w-full px-6 py-13 lg:px-12">
             <Skeleton className="h-10 w-72" />

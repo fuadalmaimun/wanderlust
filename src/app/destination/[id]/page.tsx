@@ -34,12 +34,25 @@ const DestinationDetailsPage = async ({
 }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:5000/destinations/${id}`, {
-    cache: "no-store",
-  });
+  let destination: Destination | null = null;
 
+  try {
+    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
+      cache: "no-store",
+    });
 
-  const destination: Destination = await res.json();
+    if (res.ok) {
+      const data: unknown = await res.json();
+      // The backend returns [] for an unknown id, otherwise the destination object.
+      if (data && !Array.isArray(data) && typeof data === "object") {
+        destination = data as Destination;
+      }
+    }
+  } catch {}
+
+  if (!destination) {
+    redirect("/destination");
+  }
 
   const description =
     destination.description ??

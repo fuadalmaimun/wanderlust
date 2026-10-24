@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "react-toastify";
 
 const CATEGORIES = [
   "Beach",
@@ -42,22 +43,42 @@ const AddDestinationPage = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
+  try {
     const formData = new FormData(e.currentTarget);
     const form = Object.fromEntries(formData.entries());
 
-    const res =await fetch('http://localhost:5000/add-destination', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form)
-    })
-    const data = await res.json()
-    console.log(data)
-  };
+    const res = await fetch("http://localhost:5000/add-destination", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && (data.insertedId || data.success)) {
+      toast.success("Destination added successfully!");
+
+      setTimeout(() => {
+        router.push("/destination");
+      }, 1000);
+
+      return;
+    }
+
+    toast.error(data.message || "Failed to add destination");
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong!");
+  }
+};
+
+  
 
   return (
     <div className="flex-1 w-full px-6 py-13 lg:px-12">
@@ -201,9 +222,11 @@ const AddDestinationPage = () => {
 
             <Button
               type="submit"
+             
               className="bg-teal-600 text-white hover:bg-teal-700"
             >
               <PlusCircle data-icon="inline-start" />
+              
               Add Travel Package
             </Button>
           </CardFooter>

@@ -3,7 +3,7 @@
 import {
     EditDestination,
 } from "@/app/components/destination/EditDestination";
-import DeleteDestination from "@/app/components/DeleteDestination";
+import DeleteDestination from "@/app/components/destination/DeleteDestination";
 import IDestination from "@/lib/destination";
 
 export function DetailActions({

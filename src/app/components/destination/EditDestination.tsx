@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "react-toastify";
 
 const CATEGORIES = [
   "Beach",
@@ -95,9 +96,12 @@ export function EditDestination({ destination }: { destination: EditableDestinat
       if (!res.ok) throw new Error(`Update failed: ${res.status}`);
 
       setOpen(false);
+      toast.success("Destination updated successfully");
       router.refresh(); // re-fetch the server-rendered details with new data
     } catch {
-      console.log("Could not save changes. Make sure the backend is running on localhost:5000.");
+      toast.error(
+        "Could not save changes. Make sure the backend is running on localhost:5000."
+      );
     } finally {
       setSaving(false);
     }
