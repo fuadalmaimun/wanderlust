@@ -16,7 +16,9 @@ import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-const DeleteDestination = ({destination}: {
+const DeleteDestination = ({
+  destination,
+}: {
   destination: {
     id?: string;
     _id?: string;
@@ -25,8 +27,7 @@ const DeleteDestination = ({destination}: {
   };
 }) => {
   const destinationId = destination._id ?? destination.id;
-  const destinationName =
-    destination.name ?? destination.title;
+  const destinationName = destination.name ?? destination.title;
 
   const router = useRouter();
 
