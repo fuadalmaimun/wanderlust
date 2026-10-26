@@ -42,7 +42,7 @@ export default function Banner() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 6000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);

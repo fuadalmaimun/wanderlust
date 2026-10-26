@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
+import IDestination from "@/lib/destination";
 
 const CATEGORIES = [
   "Beach",
@@ -33,19 +34,6 @@ const CATEGORIES = [
   "Adventure",
   "Cultural",
 ] as const;
-
-export type EditableDestination = {
-  id?: string | number;
-  _id?: string;
-  name: string;
-  country: string;
-  category?: string;
-  price: string | number;
-  duration: string;
-  departureDate?: string;
-  imageUrl?: string;
-  description?: string;
-};
 
 type FormState = {
   name: string;
@@ -58,8 +46,9 @@ type FormState = {
   description: string;
 };
 
-export function EditDestination({ destination }: { destination: EditableDestination }) {
-
+export function EditDestination({ destination}: {
+  destination: IDestination;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -79,19 +68,18 @@ export function EditDestination({ destination }: { destination: EditableDestinat
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const destinationId = destination.id ?? destination._id;
+    const destinationId = destination._id;
     if (!destinationId) return;
 
     setSaving(true);
     try {
-  
       const res = await fetch(
         `http://localhost:5000/destinations/${destinationId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
-        }
+        },
       );
       if (!res.ok) throw new Error(`Update failed: ${res.status}`);
 
@@ -100,7 +88,7 @@ export function EditDestination({ destination }: { destination: EditableDestinat
       router.refresh(); // re-fetch the server-rendered details with new data
     } catch {
       toast.error(
-        "Could not save changes. Make sure the backend is running on localhost:5000."
+        "Could not save changes. Make sure the backend is running on localhost:5000.",
       );
     } finally {
       setSaving(false);

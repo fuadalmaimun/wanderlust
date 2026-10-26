@@ -2,22 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin, Star, Check } from "lucide-react";
-
 import { DetailActions } from "./detail-actions";
 import { BookingCard } from "./booking-card";
-
-type Destination = {
-  id?: string | number;
-  name: string;
-  country: string;
-  category?: string;
-  price: string | number;
-  duration: string;
-  departureDate?: string;
-  imageUrl?: string;
-  description?: string;
-  rating?: number;
-};
+import IDestination from "@/lib/destination";
 
 const DEFAULT_HIGHLIGHTS = [
   "Luxury beachfront accommodation",
@@ -34,26 +21,15 @@ const DestinationDetailsPage = async ({
 }) => {
   const { id } = await params;
 
-  let destination: Destination | null = null;
+  const res = await fetch(`http://localhost:5000/destinations/${id}`, {
+    cache: "no-store",
+  });
 
-  try {
-    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
-      cache: "no-store",
-    });
-
-    if (res.ok) {
-      const data: unknown = await res.json();
-      // The backend returns [] for an unknown id, otherwise the destination object.
-      if (data && !Array.isArray(data) && typeof data === "object") {
-        destination = data as Destination;
-      }
-    }
-  } catch {}
-
-  if (!destination) {
+  if (!res.ok) {
     redirect("/destination");
   }
 
+const destination: IDestination = await res.json();
   const description =
     destination.description ??
     "Discover beautiful landscapes, unique culture, and unforgettable experiences.";
@@ -105,7 +81,8 @@ const DestinationDetailsPage = async ({
           <div className="mt-3 flex flex-wrap items-center gap-5 text-sm">
             <div className="flex items-center gap-1.5">
               <Star className="size-4 fill-amber-400 text-amber-400" />
-              <span className="font-semibold">{destination.rating ?? 4.9}</span>
+              <span className="font-semibold">{destination.rating}</span>
+           
               <span className="text-muted-foreground">(234 reviews)</span>
             </div>
 
@@ -145,10 +122,7 @@ const DestinationDetailsPage = async ({
         </div>
 
         <aside className="w-full lg:w-[320px] lg:shrink-0">
-          <BookingCard
-            price={destination.price}
-            departureDate={destination.departureDate}
-          />
+          <BookingCard destination={destination} />
         </aside>
       </div>
     </div>

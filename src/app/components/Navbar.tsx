@@ -1,11 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Menu, X } from "lucide-react";
+import { User, Menu, X, LogOut } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+} from "@/components/ui/avatar";
 
 export default function Navbar() {
+  
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
   const [activeTab, setActiveTab] = useState("Home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -20,6 +38,10 @@ export default function Navbar() {
     { name: "Add Destination", href: "/add-destination" },
     { name: "My Bookings", href: "/my-bookings" },
   ];
+
+  const handleSignOut = () => {
+    authClient.signOut();
+  };
 
   return (
     <header
@@ -73,18 +95,87 @@ export default function Navbar() {
             <User className="w-4 h-4" />
             <span>Profile</span>
           </Link>
-          <Link
-            href="/login"
-            className="text-slate-700 hover:text-[#00a8cc] transition-colors"
-          >
-            Login
-          </Link>
-          <Link
-            href="/signup"
-            className="text-slate-700 hover:text-[#00a8cc] transition-colors"
-          >
-            Sign Up
-          </Link>
+
+          {user ? (
+            <>
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full cursor-pointer"
+                      aria-label="Open profile menu"
+                    >
+                      <Avatar>
+                        <AvatarImage
+                          referrerPolicy="no-referrer"
+                          src={user?.image ?? ""}
+                          alt={user?.name ?? "User"}
+                        />
+
+                        <AvatarFallback>
+                          {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                        </AvatarFallback>
+
+                        <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                      </Avatar>
+                    </Button>
+                  }
+                />
+
+                <PopoverContent align="start" className="w-72 p-0">
+                  <div className="flex items-center gap-3 border-b p-4">
+                    <Avatar className="size-10">
+                      <AvatarImage
+                        referrerPolicy="no-referrer"
+                        src={user?.image ?? ""}
+                        alt={user?.name ?? "User"}
+                      />
+
+                      <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                    </Avatar>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">
+                        {user?.name ?? "User"}
+                      </p>
+
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user?.email ?? "No email available"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-2">
+                    <Button
+                      onClick={handleSignOut}
+                      variant="ghost"
+                      className="w-full justify-start gap-2 text-red-600 hover:text-red-700"
+                    >
+                      <LogOut className="size-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/signin"
+                className="text-slate-700 hover:text-[#00a8cc] transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="text-slate-700 hover:text-[#00a8cc] transition-colors"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger Toggle */}
