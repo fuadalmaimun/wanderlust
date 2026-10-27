@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { User, Menu, X, LogOut } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { Menu, X, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import useBookingCount from "@/hooks/use-booking-count";
 import {
   Popover,
   PopoverContent,
@@ -24,9 +26,10 @@ export default function Navbar() {
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
-  const [activeTab, setActiveTab] = useState("Home");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   // Home page: float the white bar over the hero banner.
   // Other pages: normal sticky bar in the document flow.
@@ -39,10 +42,24 @@ export default function Navbar() {
     { name: "My Bookings", href: "/my-bookings" },
   ];
 
-  const handleSignOut = () => {
-    authClient.signOut();
-  };
+  const isNavActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  // Small notification bubble on the "My Bookings" nav item.
+  const bookingCount = useBookingCount(user?.email, pathname);
+
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut();
+      setProfileMenuOpen(false);
+      setMobileMenuOpen(false);
+      toast.success("Signed out successfully");
+      router.push("/");
+      router.refresh();
+    } catch {
+      toast.error("Could not sign out. Please try again.");
+    }
+  };
   return (
     <header
       className={`w-full bg-white text-slate-800 shadow-md ${
@@ -55,12 +72,11 @@ export default function Navbar() {
         {/* Left Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           {leftNavs.map((item) => {
-            const isActive = activeTab === item.name;
+            const isActive = isNavActive(item.href);
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={() => setActiveTab(item.name)}
                 className={`text-[15px] font-medium transition-all duration-200 relative py-1 ${
                   isActive
                     ? "text-[#00a8cc] font-semibold"
@@ -68,6 +84,14 @@ export default function Navbar() {
                 }`}
               >
                 {item.name}
+                {item.name === "My Bookings" && bookingCount > 0 && (
+                  <span
+                    aria-label={`${bookingCount} bookings`}
+                    className="absolute -top-2.5 right-0 translate-x-1/2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#00a8cc] px-1 text-[10px] font-semibold leading-none text-white shadow-sm"
+                  >
+                    {bookingCount > 99 ? "99+" : bookingCount}
+                  </span>
+                )}
                 {isActive && (
                   <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#00a8cc] rounded-full" />
                 )}
@@ -88,17 +112,12 @@ export default function Navbar() {
 
         {/* Right Navigation */}
         <div className="hidden md:flex items-center space-x-6 text-[15px] font-medium">
-          <Link
-            href="/profile"
-            className="flex items-center gap-2 text-slate-700 hover:text-[#00a8cc] transition-colors"
-          >
-            <User className="w-4 h-4" />
-            <span>Profile</span>
-          </Link>
+
+          
 
           {user ? (
             <>
-              <Popover>
+              <Popover open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>
                 <PopoverTrigger
                   render={
                     <Button
@@ -201,42 +220,52 @@ export default function Navbar() {
             <Link
               key={item.name}
               href={item.href}
-              onClick={() => {
-                setActiveTab(item.name);
-                setMobileMenuOpen(false);
-              }}
-              className={`block py-2 text-base font-medium ${
-                activeTab === item.name
+              onClick={() => setMobileMenuOpen(false)}
+              className={`relative block py-2 text-base font-medium ${
+                isNavActive(item.href)
                   ? "text-[#00a8cc] font-semibold"
                   : "text-slate-700 hover:text-[#00a8cc]"
               }`}
             >
               {item.name}
+              {item.name === "My Bookings" && bookingCount > 0 && (
+                <span
+                  aria-label={`${bookingCount} bookings`}
+                  className="absolute top-0 right-0 flex h-4 min-w-4 translate-x-1/2 -translate-y-1/3 items-center justify-center rounded-full bg-[#00a8cc] px-1 text-[10px] font-semibold leading-none text-white shadow-sm"
+                >
+                  {bookingCount > 99 ? "99+" : bookingCount}
+                </span>
+              )}
             </Link>
           ))}
           <div className="pt-3 border-t border-slate-100 flex flex-col space-y-3">
-            <Link
-              href="/profile"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-slate-700 hover:text-[#00a8cc]"
-            >
-              <User className="w-4 h-4" />
-              <span>Profile</span>
-            </Link>
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-slate-700 hover:text-[#00a8cc]"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-slate-700 hover:text-[#00a8cc]"
-            >
-              Sign Up
-            </Link>
+            {user ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex items-center gap-2 text-left text-slate-700 hover:text-[#00a8cc]"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-700 hover:text-[#00a8cc]"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-slate-700 hover:text-[#00a8cc]"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

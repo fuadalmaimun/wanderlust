@@ -1,25 +1,41 @@
 'use client';
-import React from 'react';
-import { User, Mail, Lock, Image } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Lock } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
-export  default  function  SignUpPage () {
+export  default  function  SignInPage () {
+    const router = useRouter();
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (submitting) return;
+        setSubmitting(true);
+
         const formData = new FormData(e.currentTarget);
         const userData = Object.fromEntries(formData.entries()) as { email: string, password: string};
-        console.log(userData);
 
-        const {data, error} = await authClient.signIn.email({
-            ...userData,
-        })
-        if(data) {
-            redirect('/');
-        }
-        if(error) {
-            console.log(error);
+        try {
+            const { data, error } = await authClient.signIn.email({
+                ...userData,
+            });
+
+            if (error) {
+                toast.error(error.message ?? "Invalid email or password");
+                return;
+            }
+
+            if (data) {
+                toast.success("Signed in successfully");
+                router.push('/');
+                router.refresh();
+            }
+        } catch {
+            toast.error("Could not sign in. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     }
   return (
@@ -34,7 +50,7 @@ export  default  function  SignUpPage () {
 
       {/* Form Container */}
       <div className="w-full max-w-[460px] bg-white rounded-xl shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] p-8 sm:p-10 border border-gray-100">
-        <form onSubmit={handleSignUp}>
+        <form onSubmit={handleSignIn}>
             <div className="space-y-5">
           
 
@@ -68,7 +84,7 @@ export  default  function  SignUpPage () {
               <input
                 type="password"
                 name="password"
-                placeholder="Create a password"
+                placeholder="Enter your password"
                 className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
               />
             </div>
@@ -80,9 +96,10 @@ export  default  function  SignUpPage () {
           {/* Create Account Button */}
           <button
             type="submit"
-            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer"
+            disabled={submitting}
+            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
           >
-            Login
+            {submitting ? "Logging in..." : "Login"}
           </button>
         </div>
         </form>
@@ -93,13 +110,14 @@ export  default  function  SignUpPage () {
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-3 bg-white text-gray-500">Or sign up with</span>
+            <span className="px-3 bg-white text-gray-500">Or sign in with</span>
           </div>
         </div>
 
         {/* Google OAuth Button */}
         <button
           type="button"
+          onClick={() => toast.info("Google sign-in is not configured yet.")}
           className="w-full flex justify-center items-center gap-2.5 py-2.5 px-4 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer shadow-xs"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -123,11 +141,11 @@ export  default  function  SignUpPage () {
           Sign Up With Google
         </button>
 
-        {/* Sign In Link */}
+        {/* Sign Up Link */}
         <div className="mt-8 text-center text-sm text-gray-500">
           Don&apos;t have an account?{' '}
           <a
-            href="/signin"
+            href="/signup"
             className="font-semibold text-[#1399B6] hover:underline"
           >
             Sign Up

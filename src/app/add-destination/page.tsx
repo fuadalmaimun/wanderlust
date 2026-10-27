@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -42,10 +42,14 @@ const AddDestinationPage = () => {
   const [departureDate, setDepartureDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+
+  if (submitting) return;
+  setSubmitting(true);
 
   try {
     const formData = new FormData(e.currentTarget);
@@ -59,9 +63,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
 
-    if (res.ok && (data.insertedId || data.success)) {
+    if (res.ok && (data?.insertedId || data?.success)) {
       toast.success("Destination added successfully!");
 
       setTimeout(() => {
@@ -71,10 +75,14 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       return;
     }
 
-    toast.error(data.message || "Failed to add destination");
+    toast.error(data?.message || "Failed to add destination");
   } catch (error) {
     console.error(error);
-    toast.error("Something went wrong!");
+    toast.error(
+      "Could not reach the backend. Make sure it is running on localhost:5000."
+    );
+  } finally {
+    setSubmitting(false);
   }
 };
 
@@ -222,12 +230,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
             <Button
               type="submit"
-             
+              disabled={submitting}
               className="bg-teal-600 text-white hover:bg-teal-700"
             >
               <PlusCircle data-icon="inline-start" />
               
-              Add Travel Package
+              {submitting ? "Adding..." : "Add Travel Package"}
             </Button>
           </CardFooter>
         </form>

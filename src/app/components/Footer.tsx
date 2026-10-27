@@ -73,7 +73,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/destinations"
+                  href="/destination"
                   className="hover:text-white transition-colors"
                 >
                   Destinations
@@ -85,14 +85,6 @@ export default function Footer() {
                   className="hover:text-white transition-colors"
                 >
                   My Bookings
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/profile"
-                  className="hover:text-white transition-colors"
-                >
-                  My Profile
                 </Link>
               </li>
             </ul>

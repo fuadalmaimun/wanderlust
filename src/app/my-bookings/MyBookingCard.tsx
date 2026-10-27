@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import IDestination from "@/lib/destination";
+import { notifyBookingsUpdated } from "@/hooks/use-booking-count";
 
 // Booking-এর data কেমন হবে
 type IBooking = IDestination;
@@ -61,7 +62,9 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
 
   // Cancel button-এর কাজ
   const handleCancelBooking = async () => {
- 
+    if (isCancelling) return;
+    setIsCancelling(true);
+
     try {
       const res = await fetch(
         `http://localhost:5000/my-bookings/${booking._id}`,
@@ -70,20 +73,25 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
         }
       );
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if ( data.deletedCount > 0) {
+      if (res.ok && (data?.deletedCount ?? 0) > 0) {
         toast.success("Booking cancelled successfully", {
           autoClose: 1000,
         });
 
+        notifyBookingsUpdated(); // refresh the navbar "My Bookings" badge
         router.refresh();
       } else {
         toast.error("Failed to cancel booking");
       }
-    } catch (error) {
-      toast.error(`Something went wrong: ${error}`);
-    } 
+    } catch {
+      toast.error(
+        "Could not reach the backend. Make sure it is running on localhost:5000."
+      );
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   return (

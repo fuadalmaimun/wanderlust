@@ -15,17 +15,22 @@ const MyBookingPage = async () => {
     return <div>Please log in to see your bookings.</div>;
   }
 
-  // Backend থেকে booking আনব
-  const res = await fetch(
-    `http://localhost:5000/my-bookings/${session.user.email}`,
-    { cache: "no-store" }
-  );
+  // Backend থেকে booking আনব (backend down হলে crash না করে empty state)
+  let bookings: IDestination[] = [];
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch bookings");
+  try {
+    const res = await fetch(
+      `http://localhost:5000/my-bookings/${encodeURIComponent(session.user.email)}`,
+      { cache: "no-store" }
+    );
+
+    if (res.ok) {
+      const data = await res.json();
+      bookings = Array.isArray(data) ? data : [];
+    }
+  } catch {
+    bookings = [];
   }
-
-  const bookings = await res.json();
 
   return (
     <div className="w-full flex-1 px-6 py-13 lg:px-12">
@@ -37,14 +42,20 @@ const MyBookingPage = async () => {
         Manage and view your upcoming travel plans
       </p>
 
-      <div className="mt-8 flex flex-col gap-5">
-        {bookings.map((booking: IDestination) => (
-          <MyBookingCard
-            key={booking._id}
-            booking={booking}
-          />
-        ))}
-      </div>
+      {bookings.length === 0 ? (
+        <div className="mt-8 rounded-xl ring-1 ring-foreground/10 bg-card p-12 text-center text-muted-foreground">
+          No bookings found. Book a travel package to see it here.
+        </div>
+      ) : (
+        <div className="mt-8 flex flex-col gap-5">
+          {bookings.map((booking: IDestination) => (
+            <MyBookingCard
+              key={booking._id}
+              booking={booking}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

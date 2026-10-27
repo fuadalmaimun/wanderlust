@@ -1,25 +1,41 @@
 'use client';
-import React from 'react';
-import { User, Mail, Lock, Image } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Mail, Lock, Image as ImageIcon } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 export  default  function  SignUpPage () {
+    const router = useRouter();
+    const [submitting, setSubmitting] = useState(false);
 
     const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (submitting) return;
+        setSubmitting(true);
+
         const formData = new FormData(e.currentTarget);
         const userData = Object.fromEntries(formData.entries()) as {name: string, email: string, password: string};
-        console.log(userData);
 
-        const {data, error} = await authClient.signUp.email({
-            ...userData,
-        })
-        if(data) {
-            redirect('/');
-        }
-        if(error) {
-            console.log(error);
+        try {
+            const { data, error } = await authClient.signUp.email({
+                ...userData,
+            });
+
+            if (error) {
+                toast.error(error.message ?? "Could not create the account");
+                return;
+            }
+
+            if (data) {
+                toast.success("Account created successfully");
+                router.push('/');
+                router.refresh();
+            }
+        } catch {
+            toast.error("Could not sign up. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     }
   return (
@@ -62,7 +78,7 @@ export  default  function  SignUpPage () {
             </label>
             <div className="relative rounded-md">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Image size={18} strokeWidth={1.75} />
+                <ImageIcon size={18} strokeWidth={1.75} />
               </div>
               <input
                 type='url'
@@ -115,9 +131,10 @@ export  default  function  SignUpPage () {
           {/* Create Account Button */}
           <button
             type="submit"
-            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer"
+            disabled={submitting}
+            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
           >
-            Create Account
+            {submitting ? "Creating..." : "Create Account"}
           </button>
         </div>
         </form>
@@ -135,6 +152,7 @@ export  default  function  SignUpPage () {
         {/* Google OAuth Button */}
         <button
           type="button"
+          onClick={() => toast.info("Google sign-up is not configured yet.")}
           className="w-full flex justify-center items-center gap-2.5 py-2.5 px-4 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 cursor-pointer shadow-xs"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">

@@ -12,7 +12,21 @@ const DEFAULT_HIGHLIGHTS = [
   "Traditional Balinese spa treatment",
   "Private beach dinner experience",
   "Sunrise trek to Mount Batur",
-];
+]
+
+const getDestination = async (id: string): Promise<IDestination | null> => {
+  try {
+    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data && typeof data === "object" ? data : null;
+  } catch {
+    // Backend not running — treat as not found instead of crashing.
+    return null;
+  }
+};
 
 const DestinationDetailsPage = async ({
   params,
@@ -21,15 +35,11 @@ const DestinationDetailsPage = async ({
 }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:5000/destinations/${id}`, {
-    cache: "no-store",
-  });
+  const destination = await getDestination(id);
 
-  if (!res.ok) {
+  if (!destination) {
     redirect("/destination");
   }
-
-const destination: IDestination = await res.json();
   const description =
     destination.description ??
     "Discover beautiful landscapes, unique culture, and unforgettable experiences.";
