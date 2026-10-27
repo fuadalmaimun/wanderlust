@@ -12,21 +12,11 @@ const MyBookingPage = async () => {
     return <div>Please log in to see your bookings.</div>;
   }
 
-  let bookings: IDestination[] = [];
+  const res = await fetch(
+    `http://localhost:5000/my-bookings/${encodeURIComponent(session.user.email)}`,
+  );
 
-  try {
-    const res = await fetch(
-      `http://localhost:5000/my-bookings/${encodeURIComponent(session.user.email)}`,
-      { cache: "no-store" },
-    );
-
-    if (res.ok) {
-      const data = await res.json();
-      bookings = Array.isArray(data) ? data : [];
-    }
-  } catch {
-    bookings = [];
-  }
+  const bookings: IDestination[] = await res.json();
 
   return (
     <div className="w-full flex-1 px-6 py-13 lg:px-12">

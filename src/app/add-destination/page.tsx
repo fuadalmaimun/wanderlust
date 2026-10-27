@@ -47,27 +47,40 @@ const AddDestinationPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const form = Object.fromEntries(formData.entries());
+    if (submitting) return;
+    setSubmitting(true);
 
-    const res = await fetch("http://localhost:5000/add-destination", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...form,
-        price: Number(form.price),
-      }),
-    });
+    try {
+      const formData = new FormData(e.currentTarget);
+      const form = Object.fromEntries(formData.entries());
 
-    const data = await res.json();
+      const res = await fetch("http://localhost:5000/add-destination", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...form,
+          price: Number(form.price),
+        }),
+      });
 
-    if (data.insertedId) {
-      toast.success("Destination added successfully!");
-      router.push("/destination");
-    } else {
-      toast.error("Failed to add destination!");
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.insertedId) {
+        toast.success("Destination added successfully!", {
+          autoClose: 1000,
+        });
+        router.push("/destination");
+      } else {
+        toast.error(data?.message || "Failed to add destination!");
+      }
+    } catch {
+      toast.error(
+        "Could not reach the backend. Make sure it is running on localhost:5000.",
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 

@@ -1,107 +1,107 @@
-'use client';
-import React, { useState } from 'react';
-import { Mail, Lock } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+"use client";
+import React, { useState } from "react";
+import { Mail, Lock } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-export  default  function  SignInPage () {
-    const router = useRouter();
-    const [submitting, setSubmitting] = useState(false);
+export default function SignInPage() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
 
-    const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (submitting) return;
-        setSubmitting(true);
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
 
-        const formData = new FormData(e.currentTarget);
-        const userData = Object.fromEntries(formData.entries()) as { email: string, password: string};
+    const formData = new FormData(e.currentTarget);
+    const userData = Object.fromEntries(formData.entries()) as {
+      email: string;
+      password: string;
+    };
 
-        try {
-            const { data, error } = await authClient.signIn.email({
-                ...userData,
-            });
+    try {
+      const { data, error } = await authClient.signIn.email({
+        ...userData,
+      });
 
-            if (error) {
-                toast.error(error.message ?? "Invalid email or password");
-                return;
-            }
+      if (error) {
+        toast.error(error.message ?? "Invalid email or password");
+        return;
+      }
 
-            if (data) {
-                toast.success("Signed in successfully");
-                router.push('/');
-                router.refresh();
-            }
-        } catch {
-            toast.error("Could not sign in. Please try again.");
-        } finally {
-            setSubmitting(false);
-        }
+      if (data) {
+        toast.success("Signed in successfully", {
+          autoClose: 1000,
+          position: "bottom-right",
+        });
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      toast.error("Could not sign in. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
+  };
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl sm:text-5xl font-serif text-[#111827] mb-2 tracking-tight">
-         Welcome Back!
+          Welcome Back!
         </h1>
-       
       </div>
 
       {/* Form Container */}
       <div className="w-full max-w-[460px] bg-white rounded-xl shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] p-8 sm:p-10 border border-gray-100">
         <form onSubmit={handleSignIn}>
-            <div className="space-y-5">
-          
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Email Address
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Mail size={18} strokeWidth={1.75} />
+          <div className="space-y-5">
+            {/* Email Address */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <Mail size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
-          </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Password
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Lock size={18} strokeWidth={1.75} />
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Password
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <Lock size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
+
+            {/* Create Account Button */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
+            >
+              {submitting ? "Logging in..." : "Login"}
+            </button>
           </div>
-
-     
-          
-
-          {/* Create Account Button */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
-          >
-            {submitting ? "Logging in..." : "Login"}
-          </button>
-        </div>
         </form>
 
         {/* Divider */}
@@ -143,14 +143,14 @@ export  default  function  SignInPage () {
 
         {/* Sign Up Link */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <a
             href="/signup"
             className="font-semibold text-[#1399B6] hover:underline"
           >
             Sign Up
           </a>
-        </div>  
+        </div>
       </div>
     </div>
   );

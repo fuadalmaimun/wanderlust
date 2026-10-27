@@ -16,8 +16,10 @@ const DEFAULT_HIGHLIGHTS = [
 
 const getDestination = async (id: string): Promise<IDestination | null> => {
   try {
-    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
-      cache: "no-store",
+    const res = await fetch(`http://localhost:5000/destinations/${id}`,  {
+      headers: {
+        authorization: "user logged in"
+      }
     });
     if (!res.ok) return null;
     const data = await res.json();

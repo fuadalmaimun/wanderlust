@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu, X, LogOut } from "lucide-react";
+import { User, Menu, X, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/avatar";
 
 export default function Navbar() {
-  
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
@@ -53,7 +52,11 @@ export default function Navbar() {
       await authClient.signOut();
       setProfileMenuOpen(false);
       setMobileMenuOpen(false);
-      toast.success("Signed out successfully");
+      toast.success("Signed out successfully", {
+        autoClose: 1000,
+          position: "bottom-right",
+
+      });
       router.push("/");
       router.refresh();
     } catch {
@@ -112,11 +115,16 @@ export default function Navbar() {
 
         {/* Right Navigation */}
         <div className="hidden md:flex items-center space-x-6 text-[15px] font-medium">
-
-          
-
           {user ? (
             <>
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 text-slate-700 hover:text-[#00a8cc] transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span>Profile</span>
+              </Link>
+
               <Popover open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>
                 <PopoverTrigger
                   render={
@@ -240,14 +248,24 @@ export default function Navbar() {
           ))}
           <div className="pt-3 border-t border-slate-100 flex flex-col space-y-3">
             {user ? (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="flex items-center gap-2 text-left text-slate-700 hover:text-[#00a8cc]"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-slate-700 hover:text-[#00a8cc]"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 text-left text-slate-700 hover:text-[#00a8cc]"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </>
             ) : (
               <>
                 <Link

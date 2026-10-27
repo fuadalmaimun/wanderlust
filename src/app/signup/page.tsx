@@ -1,43 +1,53 @@
-'use client';
-import React, { useState } from 'react';
-import { User, Mail, Lock, Image as ImageIcon } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+"use client";
+import React, { useState } from "react";
+import { User, Mail, Lock, Image as ImageIcon, MapPin, FlagIcon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-export  default  function  SignUpPage () {
-    const router = useRouter();
-    const [submitting, setSubmitting] = useState(false);
+export default function SignUpPage() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
 
-    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (submitting) return;
-        setSubmitting(true);
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
 
-        const formData = new FormData(e.currentTarget);
-        const userData = Object.fromEntries(formData.entries()) as {name: string, email: string, password: string};
+    const formData = new FormData(e.currentTarget);
+    const userData = Object.fromEntries(formData.entries()) as {
+      name: string;
+      email: string;
+      password: string;
+      location: string;
+      Nationality: string;
+      image: string;
+    };
 
-        try {
-            const { data, error } = await authClient.signUp.email({
-                ...userData,
-            });
+    try {
+      const { data, error } = await authClient.signUp.email({
+        ...userData,
+      });
 
-            if (error) {
-                toast.error(error.message ?? "Could not create the account");
-                return;
-            }
+      if (error) {
+        toast.error(error.message ?? "Could not create the account");
+        return;
+      }
 
-            if (data) {
-                toast.success("Account created successfully");
-                router.push('/');
-                router.refresh();
-            }
-        } catch {
-            toast.error("Could not sign up. Please try again.");
-        } finally {
-            setSubmitting(false);
-        }
+      if (data) {
+        toast.success("Account created successfully", {
+          autoClose: 1000,
+          position: "bottom-right",
+        });
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      toast.error("Could not sign up. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
+  };
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       {/* Header */}
@@ -53,90 +63,122 @@ export  default  function  SignUpPage () {
       {/* Form Container */}
       <div className="w-full max-w-[460px] bg-white rounded-xl shadow-[0_10px_35px_-5px_rgba(0,0,0,0.08)] p-8 sm:p-10 border border-gray-100">
         <form onSubmit={handleSignUp}>
-            <div className="space-y-5">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Full Name
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <User size={18} strokeWidth={1.75} />
+          <div className="space-y-5">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Full Name
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <User size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Enter your name"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type="text"
-                name="name"
-                placeholder="Enter your name"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
-          </div>
-          {/* Image URL */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Image URL
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <ImageIcon size={18} strokeWidth={1.75} />
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Location
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <MapPin size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="text"
+                  name="location"
+                  placeholder="Location"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type='url'
-                name="image"
-                placeholder="image url"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
-          </div>
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Email Address
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Mail size={18} strokeWidth={1.75} />
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Nationality
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <FlagIcon  size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="text"
+                  name="nationality"
+                  placeholder="Nationality"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Password
-            </label>
-            <div className="relative rounded-md">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                <Lock size={18} strokeWidth={1.75} />
+            {/* Image URL */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Image URL
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <ImageIcon size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="url"
+                  name="image"
+                  placeholder="image url"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
               </div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Create a password"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
-              />
             </div>
+
+            {/* Email Address */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <Mail size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                Password
+              </label>
+              <div className="relative rounded-md">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <Lock size={18} strokeWidth={1.75} />
+                </div>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Create a password"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-transparent rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#1399B6] transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+
+            {/* Create Account Button */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
+            >
+              {submitting ? "Creating..." : "Create Account"}
+            </button>
           </div>
-
-          {/* Confirm Password */}
-          
-
-          {/* Create Account Button */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full mt-2 py-3 px-4 bg-[#1399B6] hover:bg-[#10859e] active:bg-[#0e748a] text-white font-medium text-sm rounded-lg shadow-sm transition-colors duration-200 cursor-pointer disabled:opacity-60"
-          >
-            {submitting ? "Creating..." : "Create Account"}
-          </button>
-        </div>
         </form>
 
         {/* Divider */}
@@ -178,7 +220,7 @@ export  default  function  SignUpPage () {
 
         {/* Sign In Link */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <a
             href="/signin"
             className="font-semibold text-[#1399B6] hover:underline"

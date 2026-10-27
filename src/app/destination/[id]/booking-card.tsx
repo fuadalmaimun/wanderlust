@@ -1,6 +1,6 @@
 "use client";
 import { ArrowRight, Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,48 @@ export function BookingCard({ destination }: BookingCardProps) {
   const { data: session } = authClient.useSession();
   const user = session?.user;
   const [booking, setBooking] = useState(false);
+  const [bookedByEmail, setBookedByEmail] = useState<string | null>(null);
+
+  const destinationId = destination._id;
+
+  // Already booked for this destination? Check the user's bookings once.
+  useEffect(() => {
+    if (!user?.email || !destinationId) return;
+
+    let cancelled = false;
+
+    const checkExistingBooking = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/my-bookings/${encodeURIComponent(user.email)}`,
+          { cache: "no-store" },
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (cancelled || !Array.isArray(data)) return;
+
+        const alreadyBooked = data.some(
+          (b: { destinationId?: string }) =>
+            String(b?.destinationId) === String(destinationId),
+        );
+
+        if (alreadyBooked) setBookedByEmail(user.email);
+      } catch {
+        // Backend not running — leave the button usable.
+      }
+    };
+
+    checkExistingBooking();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.email, destinationId]);
+
+  // Only counts for the currently signed-in user (safe across sign-outs).
+  const alreadyBooked = Boolean(user?.email && bookedByEmail === user.email);
 
   const handleBook = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +76,11 @@ export function BookingCard({ destination }: BookingCardProps) {
     if (!user) {
       toast.error("Please sign in to book this trip");
       router.push("/signin");
+      return;
+    }
+
+    if (alreadyBooked) {
+      toast.info("You have already booked this destination");
       return;
     }
 
@@ -63,8 +110,10 @@ export function BookingCard({ destination }: BookingCardProps) {
 
       if (!res.ok) throw new Error(`Booking failed: ${res.status}`);
 
-      toast.success(`${destination.name} booked successfully`, {
+      setBookedByEmail(user.email); // lock the button right away
+      toast.success(`${destination.name} booked successfully!`, {
         autoClose: 1000,
+        position: "bottom-right",
       });
       notifyBookingsUpdated(); 
       router.refresh();
@@ -99,12 +148,20 @@ export function BookingCard({ destination }: BookingCardProps) {
 
         <Button
           type="submit"
-          className="mt-3 w-full bg-teal-600 text-white hover:bg-teal-700"
+          className={`mt-3 w-full text-white ${
+            alreadyBooked
+              ? "bg-emerald-600 hover:bg-emerald-700"
+              : "bg-teal-600 hover:bg-teal-700"
+          }`}
           size="lg"
-          disabled={booking}
+          disabled={booking || alreadyBooked}
         >
-          {booking ? "Booking..." : "Book Now"}
-          <ArrowRight data-icon="inline-end" />
+          {booking ? "Booking..." : alreadyBooked ? "Already Booked" : "Book Now"}
+          {alreadyBooked ? (
+            <Check data-icon="inline-end" />
+          ) : (
+            <ArrowRight data-icon="inline-end" />
+          )}
         </Button>
       </form>
 
