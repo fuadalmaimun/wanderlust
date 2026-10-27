@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin, Star, Check } from "lucide-react";
-import { DetailActions } from "./detail-actions";
+import { DetailActions } from "../../components/detail-action/detail-actions";
 import { BookingCard } from "./booking-card";
 import IDestination from "@/lib/destination";
 
@@ -12,7 +12,7 @@ const DEFAULT_HIGHLIGHTS = [
   "Traditional Balinese spa treatment",
   "Private beach dinner experience",
   "Sunrise trek to Mount Batur",
-]
+];
 
 const getDestination = async (id: string): Promise<IDestination | null> => {
   try {
@@ -34,7 +34,6 @@ const DestinationDetailsPage = async ({
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
-
   const destination = await getDestination(id);
 
   if (!destination) {
@@ -92,7 +91,7 @@ const DestinationDetailsPage = async ({
             <div className="flex items-center gap-1.5">
               <Star className="size-4 fill-amber-400 text-amber-400" />
               <span className="font-semibold">{destination.rating}</span>
-           
+
               <span className="text-muted-foreground">(234 reviews)</span>
             </div>
 

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -12,8 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -34,6 +34,7 @@ const CATEGORIES = [
 
 const AddDestinationPage = () => {
   const router = useRouter();
+
   const [name, setName] = useState("");
   const [country, setCountry] = useState("");
   const [category, setCategory] = useState<string>("");
@@ -44,14 +45,8 @@ const AddDestinationPage = () => {
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-
-  if (submitting) return;
-  setSubmitting(true);
-
-  try {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const form = Object.fromEntries(formData.entries());
 
@@ -60,33 +55,21 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        price: Number(form.price),
+      }),
     });
 
-    const data = await res.json().catch(() => null);
+    const data = await res.json();
 
-    if (res.ok && (data?.insertedId || data?.success)) {
+    if (data.insertedId) {
       toast.success("Destination added successfully!");
-
-      setTimeout(() => {
-        router.push("/destination");
-      }, 1000);
-
-      return;
+      router.push("/destination");
+    } else {
+      toast.error("Failed to add destination!");
     }
-
-    toast.error(data?.message || "Failed to add destination");
-  } catch (error) {
-    console.error(error);
-    toast.error(
-      "Could not reach the backend. Make sure it is running on localhost:5000."
-    );
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-  
+  };
 
   return (
     <div className="flex-1 w-full px-6 py-13 lg:px-12">
@@ -234,8 +217,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               className="bg-teal-600 text-white hover:bg-teal-700"
             >
               <PlusCircle data-icon="inline-start" />
-              
-              {submitting ? "Adding..." : "Add Travel Package"}
+              Add Travel Package
             </Button>
           </CardFooter>
         </form>

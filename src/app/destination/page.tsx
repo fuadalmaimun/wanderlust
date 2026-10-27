@@ -1,35 +1,16 @@
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Calendar, Star, ArrowUpRight } from "lucide-react";
-
-type Destination = {
-  id?: string | number;
-  _id?: string;
-  name: string;
-  country: string;
-  category?: string;
-  price: string | number;
-  duration: string;
-  imageUrl?: string;
-  rating?: number;
-};
+import IDestination from '@/lib/destination';
+type Destination = IDestination;
 
 const getDestinations = async (): Promise<Destination[]> => {
-  try {
-    const res = await fetch("http://localhost:5000/destinations", {
-      cache: "no-store",
-    });
-    if (!res.ok) return [];
+    const res = await fetch("http://localhost:5000/destinations");
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    // Backend not running — render an empty state instead of crashing.
-    return [];
-  }
+    return data;
 };
 
-const Page = async () => {
+const DestinationsPage = async () => {
   const destinations = await getDestinations();
 
   return (
@@ -53,8 +34,8 @@ const Page = async () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {destinations.map((d, i) => {
-            const destinationId = d.id ?? d._id ?? i;
+          {destinations.map((d) => {
+            const destinationId = d._id ;
 
             return (
               <div
@@ -119,4 +100,4 @@ const Page = async () => {
   );
 };
 
-export default Page;
+export default DestinationsPage;

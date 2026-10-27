@@ -2,8 +2,8 @@
 
 import {
     EditDestination,
-} from "@/app/components/EditDestination";
-import DeleteDestination from "@/app/components/DeleteDestination";
+} from "@/app/components/detail-action/EditDestination";
+import DeleteDestination from "@/app/components/detail-action/DeleteDestination";
 import IDestination from "@/lib/destination";
 
 export function DetailActions({

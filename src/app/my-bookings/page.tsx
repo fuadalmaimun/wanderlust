@@ -1,27 +1,23 @@
-
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import MyBookingCard from "./MyBookingCard";
 import IDestination from "@/lib/destination";
 
 const MyBookingPage = async () => {
-  // Logged-in user-এর session বের করব
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // Login না করলে message দেখাবে
   if (!session) {
     return <div>Please log in to see your bookings.</div>;
   }
 
-  // Backend থেকে booking আনব (backend down হলে crash না করে empty state)
   let bookings: IDestination[] = [];
 
   try {
     const res = await fetch(
       `http://localhost:5000/my-bookings/${encodeURIComponent(session.user.email)}`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
 
     if (res.ok) {
@@ -49,10 +45,7 @@ const MyBookingPage = async () => {
       ) : (
         <div className="mt-8 flex flex-col gap-5">
           {bookings.map((booking: IDestination) => (
-            <MyBookingCard
-              key={booking._id}
-              booking={booking}
-            />
+            <MyBookingCard key={booking._id} booking={booking} />
           ))}
         </div>
       )}

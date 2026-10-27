@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -16,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { format, isValid, parseISO } from "date-fns";
 import { toast } from "react-toastify";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import IDestination from "@/lib/destination";
@@ -25,7 +23,6 @@ import { notifyBookingsUpdated } from "@/hooks/use-booking-count";
 // Booking-এর data কেমন হবে
 type IBooking = IDestination;
 
-
 const MyBookingCard = ({ booking }: { booking: IBooking }) => {
   const router = useRouter();
 
@@ -33,9 +30,9 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
   const [isCancelling, setIsCancelling] = useState(false);
 
   // Status অনুযায়ী design
-  const isPending = booking.status?.toLowerCase() === "pending";
+  const isConfirmed = booking.status?.toLowerCase() === "confirmed";
 
-  const status = isPending
+  const status = isConfirmed
     ? {
         label: "Pending",
         icon: Clock,
@@ -56,8 +53,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
       ? format(parseISO(date), "MMMM d, yyyy")
       : date || "—";
 
-  // Booking-এর ID দিয়ে destination page খোলা যাবে না।
-  // আলাদা destinationId দরকার।
+
   const detailId = booking.destinationId;
 
   // Cancel button-এর কাজ
@@ -70,7 +66,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
         `http://localhost:5000/my-bookings/${booking._id}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       const data = await res.json().catch(() => null);
@@ -87,7 +83,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
       }
     } catch {
       toast.error(
-        "Could not reach the backend. Make sure it is running on localhost:5000."
+        "Could not reach the backend. Make sure it is running on localhost:5000.",
       );
     } finally {
       setIsCancelling(false);
@@ -120,9 +116,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
           {status.label}
         </Badge>
 
-        <h2 className="mt-2 font-serif text-xl font-bold">
-          {booking.name}
-        </h2>
+        <h2 className="mt-2 font-serif text-xl font-bold">{booking.name}</h2>
 
         <div className="mt-2 space-y-1.5 text-[13px] text-muted-foreground">
           <p className="flex items-center gap-2">
@@ -140,9 +134,7 @@ const MyBookingCard = ({ booking }: { booking: IBooking }) => {
 
         {/* Price and buttons */}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
-          <p className="text-2xl font-bold text-[#1399B6]">
-            ${booking.price}
-          </p>
+          <p className="text-2xl font-bold text-[#1399B6]">${booking.price}</p>
 
           <div className="flex gap-2.5">
             <Button

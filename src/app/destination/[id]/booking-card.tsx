@@ -51,7 +51,6 @@ export function BookingCard({ destination }: BookingCardProps) {
       destinationId: destination._id,
       departureDate,
       bookingDate: new Date().toISOString(),
-      status: "pending",
     };
 
     setBooking(true);
@@ -67,7 +66,7 @@ export function BookingCard({ destination }: BookingCardProps) {
       toast.success(`${destination.name} booked successfully`, {
         autoClose: 1000,
       });
-      notifyBookingsUpdated(); // refresh the navbar "My Bookings" badge
+      notifyBookingsUpdated(); 
       router.refresh();
     } catch {
       toast.error(
