@@ -24,6 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const CATEGORIES = [
   "Beach",
@@ -57,12 +58,12 @@ const AddDestinationPage = () => {
     setSubmitting(true);
 
     try {
-      const { data, error } = await authClient.token();
-      const res = await fetch("http://localhost:5000/add-destination", {
+      const token = await getTokenFromClient()
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-destination`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${data?.token}`,
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...form,

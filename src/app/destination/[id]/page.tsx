@@ -7,6 +7,7 @@ import { BookingCard } from "./booking-card";
 import IDestination from "@/lib/destination";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
 const DEFAULT_HIGHLIGHTS = [
   "Luxury beachfront accommodation",
@@ -18,17 +19,13 @@ const DEFAULT_HIGHLIGHTS = [
 
 const getDestination = async (id: string): Promise<IDestination | null> => {
 
-  const jwtToken = await auth.api.getToken({
-    headers: await headers(),
-  });
-  
-  const token = jwtToken?.token;
-  console.log(token)
+ 
+  const token = await getTokenFromServer()
 
   try {
-    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations/${id}`, {
       headers: {
-        authorization: `Bearer ${jwtToken?.token}`,
+        authorization: `Bearer ${token}`,
       },
     });
     if (!res.ok) return null;

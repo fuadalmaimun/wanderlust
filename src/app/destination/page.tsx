@@ -1,15 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Calendar, Star, ArrowUpRight } from "lucide-react";
-import IDestination from '@/lib/destination';
+import IDestination from "@/lib/destination";
 type Destination = IDestination;
 
 const getDestinations = async (): Promise<Destination[]> => {
-    const res = await fetch("http://localhost:5000/destinations");
-    const data = await res.json();
-    return data;
-};
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations`);
 
+    if (!res.ok) {
+      throw new Error(`Backend responded with ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch destinations:", error);
+    return [];
+  }
+};
 const DestinationsPage = async () => {
   const destinations = await getDestinations();
 
@@ -35,7 +43,7 @@ const DestinationsPage = async () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {destinations.map((d) => {
-            const destinationId = d._id ;
+            const destinationId = d._id;
 
             return (
               <div

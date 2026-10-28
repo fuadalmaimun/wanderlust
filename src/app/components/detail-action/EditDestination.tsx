@@ -25,6 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import IDestination from "@/lib/destination";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const CATEGORIES = [
   "Beach",
@@ -45,7 +46,9 @@ type FormState = {
   description: string;
 };
 
-export function EditDestination({ destination}: {
+export function EditDestination({
+  destination,
+}: {
   destination: IDestination;
 }) {
   const router = useRouter();
@@ -72,14 +75,26 @@ export function EditDestination({ destination}: {
 
     setSaving(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/destinations/${destinationId}`,
+      const data = await getTokenFromClient();
+      const token = data?.token;
+
+      if (!token) {
+        toast.error("Authentication token not found!");
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations/${destinationId}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify(form),
         },
       );
+
+      // বাকি তোমার code আগের মতোই থাকবে
       if (!res.ok) throw new Error(`Update failed: ${res.status}`);
 
       setOpen(false);

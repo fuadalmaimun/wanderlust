@@ -21,7 +21,7 @@ const getStats = async (email: string) => {
 
   try {
     const res = await fetch(
-      `http://localhost:5000/my-bookings/${encodeURIComponent(email)}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${encodeURIComponent(email)}`,
       { cache: "no-store" },
     );
 

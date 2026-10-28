@@ -13,7 +13,7 @@ const MyBookingPage = async () => {
   }
 
   const res = await fetch(
-    `http://localhost:5000/my-bookings/${encodeURIComponent(session.user.email)}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${encodeURIComponent(session.user.email)}`,
   );
 
   const bookings: IDestination[] = await res.json();

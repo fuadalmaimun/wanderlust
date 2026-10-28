@@ -38,7 +38,7 @@ export function BookingCard({ destination }: BookingCardProps) {
     const checkExistingBooking = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/my-bookings/${encodeURIComponent(user.email)}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${encodeURIComponent(user.email)}`,
           { cache: "no-store" },
         );
 
