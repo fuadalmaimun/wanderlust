@@ -5,6 +5,8 @@ import { ArrowLeft, Calendar, MapPin, Star, Check } from "lucide-react";
 import { DetailActions } from "../../components/detail-action/detail-actions";
 import { BookingCard } from "./booking-card";
 import IDestination from "@/lib/destination";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const DEFAULT_HIGHLIGHTS = [
   "Luxury beachfront accommodation",
@@ -15,11 +17,19 @@ const DEFAULT_HIGHLIGHTS = [
 ];
 
 const getDestination = async (id: string): Promise<IDestination | null> => {
+
+  const jwtToken = await auth.api.getToken({
+    headers: await headers(),
+  });
+  
+  const token = jwtToken?.token;
+  console.log(token)
+
   try {
-    const res = await fetch(`http://localhost:5000/destinations/${id}`,  {
+    const res = await fetch(`http://localhost:5000/destinations/${id}`, {
       headers: {
-        authorization: "user logged in"
-      }
+        authorization: `Bearer ${jwtToken?.token}`,
+      },
     });
     if (!res.ok) return null;
     const data = await res.json();

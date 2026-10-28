@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
+import { authClient } from "@/lib/auth-client";
 
 const CATEGORIES = [
   "Beach",
@@ -47,17 +48,21 @@ const AddDestinationPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (submitting) return;
+
+    const formData = new FormData(e.currentTarget);
+    const form = Object.fromEntries(formData.entries());
+
     setSubmitting(true);
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const form = Object.fromEntries(formData.entries());
-
+      const { data, error } = await authClient.token();
       const res = await fetch("http://localhost:5000/add-destination", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          authorization: `Bearer ${data?.token}`,
         },
         body: JSON.stringify({
           ...form,
@@ -65,17 +70,27 @@ const AddDestinationPage = () => {
         }),
       });
 
-      const data = await res.json().catch(() => null);
+      const result = await res.json().catch(() => null);
 
-      if (res.ok && data?.insertedId) {
+      console.log("Response status:", res.status);
+      console.log("Response data:", result);
+
+      if (res.ok && result?.insertedId) {
         toast.success("Destination added successfully!", {
           autoClose: 1000,
         });
+
         router.push("/destination");
       } else {
-        toast.error(data?.message || "Failed to add destination!");
+        toast.error(
+          result?.msg ||
+            result?.message ||
+            `Failed to add destination (${res.status})`,
+        );
       }
-    } catch {
+    } catch (error) {
+      console.error("Frontend request error:", error);
+
       toast.error(
         "Could not reach the backend. Make sure it is running on localhost:5000.",
       );
