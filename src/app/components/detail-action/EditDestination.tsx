@@ -75,15 +75,15 @@ export function EditDestination({
 
     setSaving(true);
     try {
-      const data = await getTokenFromClient();
-      const token = data?.token;
+      const token = await getTokenFromClient();
 
       if (!token) {
         toast.error("Authentication token not found!");
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations/${destinationId}`,
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/destinations/${destinationId}`,
         {
           method: "PUT",
           headers: {
