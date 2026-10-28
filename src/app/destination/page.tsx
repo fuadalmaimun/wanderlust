@@ -6,7 +6,9 @@ type Destination = IDestination;
 
 const getDestinations = async (): Promise<Destination[]> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/destinations`, {
+      cache: "no-store"
+    });
 
     if (!res.ok) {
       throw new Error(`Backend responded with ${res.status}`);

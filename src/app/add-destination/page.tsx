@@ -58,18 +58,21 @@ const AddDestinationPage = () => {
     setSubmitting(true);
 
     try {
-      const token = await getTokenFromClient()
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-destination`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
+      const token = await getTokenFromClient();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/add-destination`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            ...form,
+            price: Number(form.price),
+          }),
         },
-        body: JSON.stringify({
-          ...form,
-          price: Number(form.price),
-        }),
-      });
+      );
 
       const result = await res.json().catch(() => null);
 
